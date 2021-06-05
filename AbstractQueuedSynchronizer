@@ -1,24 +1,11 @@
-# AbstractQueuedSynchronizer
+# ThreadPoolExecutor
 
-## AQS 结构
+ 32 位的整数来存放线程池的状态和当前池中的线程数，其中高 3 位用于存放线程池状态，低 29 位表示线程数。
 
-先来看看 AQS 有哪些属性，搞清楚这些基本就知道 AQS 是什么套路了。
+- RUNNING：这个没什么好说的，这是最正常的状态：接受新的任务，处理等待队列中的任务/-1
+- SHUTDOWN：不接受新的任务提交，但是会继续处理等待队列中的任务/0
+- STOP：不接受新的任务提交，不再处理等待队列中的任务，中断正在执行任务的线程/1
+- TIDYING：所有的任务都销毁了，workCount 为 0。线程池的状态在转换为 TIDYING 状态时，会执行钩子方法 terminated()/2
+- TERMINATED：terminated() 方法结束后，线程池的状态就会变成这个/3
 
-```java
-// 头结点，你直接把它当做 当前持有锁的线程 可能是最好理解的
-private transient volatile Node head;
-
-// 阻塞的尾节点，每个新的节点进来，都插入到最后，也就形成了一个链表
-private transient volatile Node tail;
-
-// 这个是最重要的，代表当前锁的状态，0代表没有被占用，大于 0 代表有线程持有当前锁
-// 这个值可以大于 1，是因为锁可以重入，每次重入都加上 1
-private volatile int state;
-
-// 代表当前持有独占锁的线程，举个最重要的使用例子，因为锁可以重入
-// reentrantLock.lock()可以嵌套调用多次，所以每次用这个来判断当前线程是否已经拥有了锁
-// if (currentThread == getExclusiveOwnerThread()) {state++}
-private transient Thread exclusiveOwnerThread; //继承自AbstractOwnableSynchronizer
-```
-
-AbstractQueuedSynchronizer 的等待队列也就是阻塞队列**不包含 head，不包含 head，不包含 head**。
+> RUNNING 定义为 -1，SHUTDOWN 定义为 0，其他的都比 0 大，所以等于 0 的时候不能提交任务，大于 0 的话，连正在执行的任务也需要中断。
