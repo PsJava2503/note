@@ -16,7 +16,7 @@
 
 #### Worker ：
 
-这里又用到了抽象类 AbstractQueuedSynchronizer。
+这里又用到了抽象类 AbstractQueuedSynchronizer。用来判断线程任务是否处在运行状态,shutdown的停止线程；如果没有获取到锁，证明线程在运行中，不设置打断
 
 ```java
 private final class Worker
