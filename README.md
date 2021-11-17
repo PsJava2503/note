@@ -1,2 +1,2 @@
-# LazyBlog
-个人笔记
+# Record
+笔记
