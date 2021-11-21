@@ -1,2 +1,2 @@
-# Record
+# Note
 笔记
